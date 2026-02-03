@@ -1,0 +1,43 @@
+body {
+    font-family: sans-serif;
+    background: #f3efe6;
+  }
+  
+  #game {
+    display: flex;
+    gap: 24px;
+    padding: 20px;
+  }
+  
+  #board {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(7, 60px);
+    gap: 2px;
+    background: #8b6b4f;
+    padding: 6px;
+  }
+  
+  .cell {
+    width: 60px;
+    height: 60px;
+    background: #d6c2a3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  #tray {
+    display: flex;
+    flex-wrap: wrap;
+    width: 260px;
+    gap: 10px;
+  }
+  
+  .piece {
+    position: absolute;
+    background: #c19a6b;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    cursor: grab;
+  }
