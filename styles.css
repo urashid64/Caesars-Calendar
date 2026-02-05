@@ -41,3 +41,22 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     cursor: grab;
   }
+
+  #tray {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-template-rows: repeat(3, 80px);
+    gap: 10px;
+    position: relative;
+  }
+  
+  .tray-slot {
+    width: 80px;
+    height: 80px;
+    background: #e6d3b1;
+    border: 2px dashed #b08b5a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
