@@ -21,6 +21,7 @@ body {
   .cell {
     width: 60px;
     height: 60px;
+    box-sizing: border-box;
     background: #d6c2a3;
     display: flex;
     align-items: center;
@@ -57,4 +58,47 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+  }
+
+  .tray-slot {
+    position: relative;
+  }
+  
+  /* buttons */
+  .tray-btn {
+    position: absolute;
+    top: 6px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    z-index: 10;
+    cursor: pointer;
+  }
+  
+  .rotate-btn {
+    left: 6px;
+  }
+  
+  .flip-btn {
+    right: 6px;
+  }
+  
+  /* pieces should be below buttons */
+  .piece {
+    z-index: 1;
+  }
+
+  .cell.target {
+    background: #fff3b0;
+    font-weight: bold;
+    box-shadow: inset 0 0 0 2px #e6b800;
+  }
+  #hud {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 18px;
   }

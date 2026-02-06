@@ -5,8 +5,12 @@ const CELL = 60;
 const ROWS = 8;
 const COLS = 7;
 const TRAY_SIZE = 4 * CELL;
-const TAP_TIME = 250;
-const DRAG_DIST = 6;
+
+const TARGET = {
+  month: "FEB",
+  date: "14",
+  day: "FRI"
+};
 
 // =======================
 // BOARD
@@ -58,17 +62,13 @@ const tray  = document.getElementById("tray");
 // =======================
 // GEOMETRY
 // =======================
-function normalize(cells){
-  const minX=Math.min(...cells.map(c=>c[0]));
-  const minY=Math.min(...cells.map(c=>c[1]));
-  return cells.map(c=>[c[0]-minX,c[1]-minY]);
+function normalize(c){
+  const minX=Math.min(...c.map(p=>p[0]));
+  const minY=Math.min(...c.map(p=>p[1]));
+  return c.map(p=>[p[0]-minX,p[1]-minY]);
 }
-function rotate(cells){
-  return normalize(cells.map(c=>[c[1],-c[0]]));
-}
-function flip(cells){
-  return normalize(cells.map(c=>[-c[0],c[1]]));
-}
+function rotate(c){ return normalize(c.map(p=>[p[1],-p[0]])); }
+function flip(c){ return normalize(c.map(p=>[-p[0],p[1]])); }
 function apply(p){
   let c=[...p.base];
   if(p.flipped) c=flip(c);
@@ -86,11 +86,14 @@ boardLayout.flat().forEach(c=>{
   d.className="cell";
   if(c===null) d.classList.add("locked");
   else d.textContent=c;
+  if (c === TARGET.month || c === TARGET.date || c === TARGET.day) {
+    d.classList.add("target");
+  }
   board.appendChild(d);
 });
 
 // =======================
-// TRAY (FIXED 4×4 CELLS)
+// TRAY
 // =======================
 tray.style.display="grid";
 tray.style.gridTemplateColumns="repeat(4, auto)";
@@ -100,11 +103,27 @@ const slots=[];
 for(let i=0;i<12;i++){
   const s=document.createElement("div");
   s.className="tray-slot";
-  s.style.width  = TRAY_SIZE + "px";
-  s.style.height = TRAY_SIZE + "px";
+  s.style.width=TRAY_SIZE+"px";
+  s.style.height=TRAY_SIZE+"px";
   s.style.position="relative";
   s.style.boxSizing="border-box";
-  s.style.border="1px dashed #aaa";
+
+  // controls
+  const rotateBtn = document.createElement("button");
+  rotateBtn.textContent = "⟳";
+  rotateBtn.className = "tray-btn rotate-btn";
+  
+  const flipBtn = document.createElement("button");
+  flipBtn.textContent = "⇋";
+  flipBtn.className = "tray-btn flip-btn";
+  
+  // prevent drag start
+  rotateBtn.onpointerdown = e => e.stopPropagation();
+  flipBtn.onpointerdown   = e => e.stopPropagation();
+
+  s.appendChild(rotateBtn);
+  s.appendChild(flipBtn);
+
   slots.push(s);
   tray.appendChild(s);
 }
@@ -131,72 +150,147 @@ function renderPiece(p,slot){
     el.appendChild(b);
   });
 
-  // center inside slot
   const w=(Math.max(...p.cells.map(c=>c[0]))+1)*CELL;
   const h=(Math.max(...p.cells.map(c=>c[1]))+1)*CELL;
   el.style.left=(TRAY_SIZE-w)/2+"px";
   el.style.top =(TRAY_SIZE-h)/2+"px";
+
   slots[slot].appendChild(el);
   p.el=el;
+
+  // hook controls
+  const [rotateBtn,flipBtn]=slots[slot].querySelectorAll("button");
+  rotateBtn.onclick=()=>{ p.rotation=(p.rotation+1)%4; rerender(p,slot); };
+  flipBtn.onclick=()=>{ p.flipped=!p.flipped; rerender(p,slot); };
+
+  updateTrayButtons(p);
+}
+
+function rerender(p,slot){
+  p.el.remove();
+  renderPiece(p,slot);
 }
 
 // =======================
-// INTERACTION
+// GHOST PREVIEW
 // =======================
-let active=null, sx=0, sy=0, moved=false, lastTap=0;
+let ghost=null;
 
-document.addEventListener("pointerdown",e=>{
-  const el=e.target.closest(".piece");
-  if(!el) return;
-  active=pieces.find(p=>p.id===el.dataset.id);
-  const r=el.getBoundingClientRect();
-  sx=e.clientX; sy=e.clientY;
-  moved=false;
-  el.style.position="absolute";
-  el.style.left=r.left+"px";
-  el.style.top =r.top +"px";
+function showGhost(p,x,y,valid){
+  clearGhost();
+  ghost=document.createElement("div");
+  ghost.className="ghost";
+  ghost.style.position="absolute";
+  ghost.style.pointerEvents="none";
+
+  p.cells.forEach(c=>{
+    const g=document.createElement("div");
+    g.style.width=CELL+"px";
+    g.style.height=CELL+"px";
+    g.style.position="absolute";
+    g.style.left=c[0]*CELL+"px";
+    g.style.top =c[1]*CELL+"px";
+    g.style.background=valid?"rgba(0,200,0,.4)":"rgba(200,0,0,.4)";
+    ghost.appendChild(g);
+  });
+
+  const origin = boardOrigin();
+  ghost.style.left = origin.x + x * CELL + "px";
+  ghost.style.top  = origin.y + y * CELL + "px";
+  document.body.appendChild(ghost);
+}
+
+function clearGhost(){
+  if(ghost){ ghost.remove(); ghost=null; }
+}
+
+function updateTrayButtons(p) {
+  const slot = slots[pieces.indexOf(p)];
+  if (!slot) return;
+
+  const buttons = slot.querySelectorAll(".tray-btn");
+  buttons.forEach(btn => {
+    btn.disabled = !!p.pos;
+    btn.style.opacity = p.pos ? "0.3" : "1";
+    btn.style.pointerEvents = p.pos ? "none" : "auto";
+  });
+}
+
+// =======================
+// DRAG
+// =======================
+let active=null, ox=0, oy=0;
+
+document.addEventListener("pointerdown", e => {
+  const el = e.target.closest(".piece");
+  if (!el) return;
+
+  active = pieces.find(p => p.id === el.dataset.id);
+
+  removeFromBoard(active);
+  updateTrayButtons(active);
+
+  const r = el.getBoundingClientRect();
+  ox = e.clientX - r.left;
+  oy = e.clientY - r.top;
+
+  el.style.position = "absolute";
   document.body.appendChild(el);
 });
 
 document.addEventListener("pointermove",e=>{
   if(!active) return;
-  if(Math.hypot(e.clientX-sx,e.clientY-sy)>DRAG_DIST) moved=true;
-  active.el.style.left=e.clientX+"px";
-  active.el.style.top =e.clientY+"px";
+  active.el.style.left=e.clientX-ox+"px";
+  active.el.style.top =e.clientY-oy+"px";
+
+  const origin = boardOrigin();
+  const x = Math.floor((e.clientX - origin.x) / CELL);
+  const y = Math.floor((e.clientY - origin.y) / CELL);
+  if(x>=0&&y>=0&&x<COLS&&y<ROWS){
+    showGhost(active,x,y,canPlace(active,x,y));
+  } else clearGhost();
 });
 
 document.addEventListener("pointerup",e=>{
   if(!active) return;
+  clearGhost();
 
-  // TAP
-  if(!moved){
-    const now=Date.now();
-    if(now-lastTap<TAP_TIME) active.flipped=!active.flipped;
-    else active.rotation=(active.rotation+1)%4;
-    lastTap=now;
+  const origin = boardOrigin();
+  const x = Math.floor((e.clientX - origin.x) / CELL);
+  const y = Math.floor((e.clientY - origin.y) / CELL);
 
-    active.el.remove();
-    renderPiece(active, pieces.indexOf(active));
-    active=null;
-    return;
-  }
+  if(canPlace(active,x,y)) place(active,x,y);
+  else rerender(active,pieces.indexOf(active));
 
-  // DROP
-  const r=board.getBoundingClientRect();
-  const gx=Math.floor((e.clientX-r.left)/CELL);
-  const gy=Math.floor((e.clientY-r.top )/CELL);
-
-  if(canPlace(active,gx,gy)) place(active,gx,gy);
-  else {
-    active.el.remove();
-    renderPiece(active, pieces.indexOf(active));
-  }
   active=null;
 });
+
+let startTime = Date.now();
+let timerInterval = null;
+
+function startTimer() {
+  clearInterval(timerInterval);
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const s = String(elapsed % 60).padStart(2, "0");
+  document.getElementById("timer").textContent = `${m}:${s}`;
+}
 
 // =======================
 // BOARD LOGIC
 // =======================
+function boardOrigin() {
+  const rect = board.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top
+  };
+}
 function canPlace(p,x,y){
   for(const c of p.cells){
     const X=x+c[0], Y=y+c[1];
@@ -205,13 +299,47 @@ function canPlace(p,x,y){
   }
   return true;
 }
-function place(p,x,y){
-  p.cells.forEach(c=>boardState[y+c[1]][x+c[0]].covered=true);
-  p.el.style.left=board.offsetLeft+x*CELL+"px";
-  p.el.style.top =board.offsetTop +y*CELL+"px";
-}
+function place(p, x, y) {
+  p.cells.forEach(c => {
+    boardState[y + c[1]][x + c[0]].covered = true;
+  });
 
+  p.pos = { x, y };
+
+  const origin = boardOrigin();
+  p.el.style.left = origin.x + x * CELL + "px";
+  p.el.style.top  = origin.y + y * CELL + "px";
+
+  updateTrayButtons(p);
+}
+function removeFromBoard(p) {
+  if (!p.pos) return;
+  p.cells.forEach(c => {
+    boardState[p.pos.y + c[1]][p.pos.x + c[0]].covered = false;
+  });
+  p.pos = null;
+}
+function resetGame() {
+  // clear board coverage
+  boardState.flat().forEach(c => {
+    if (c) c.covered = false;
+  });
+
+  // reset pieces
+  pieces.forEach((p, i) => {
+    p.rotation = 0;
+    p.flipped = false;
+    p.pos = null;
+    if (p.el) p.el.remove();
+    renderPiece(p, i);
+  });
+
+  clearGhost();
+  startTimer();
+}
+document.getElementById("resetBtn").onclick = resetGame;
 // =======================
 // INIT
 // =======================
 pieces.forEach((p,i)=>renderPiece(p,i));
+startTimer();
