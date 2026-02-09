@@ -11,10 +11,10 @@ body {
   
   #board {
     display: grid;
-    grid-template-columns: repeat(7, 60px);
+/*    grid-template-columns: repeat(7, 60px);*/
     grid-template-rows: repeat(7, 60px);
     gap: 2px;
-    background: #8b6b4f;
+    background: #9b7b5f;
     padding: 6px;
   }
   
@@ -28,19 +28,20 @@ body {
     justify-content: center;
     font-weight: bold;
   }
-  
+  /*
   #tray {
     display: flex;
     flex-wrap: wrap;
     width: 260px;
     gap: 10px;
   }
-  
+  */
   .piece {
     position: absolute;
     background: #c19a6b;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     cursor: grab;
+    z-index: 1;
   }
 
   #tray {
@@ -59,11 +60,11 @@ body {
     justify-content: center;
     position: relative;
   }
-
+/*
   .tray-slot {
     position: relative;
   }
-  
+*/
   /* buttons */
   .tray-btn {
     position: absolute;
@@ -85,16 +86,21 @@ body {
     right: 6px;
   }
   
-  /* pieces should be below buttons */
+  /* pieces should be below buttons 
   .piece {
     z-index: 1;
   }
-
+  */
   .cell.target {
     background: #fff3b0;
     font-weight: bold;
     box-shadow: inset 0 0 0 2px #e6b800;
   }
+  
+  .cell.locked {
+    background: #8b6b4f;
+  }
+
   #hud {
     display: flex;
     gap: 12px;
