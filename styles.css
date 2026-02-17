@@ -6,7 +6,7 @@ body {
   #game {
     display: flex;
     gap: 24px;
-    padding: 20px;
+    padding: 12px;
   }
   
   #board {
@@ -102,9 +102,10 @@ body {
   }
 
   #hud {
+    width:240px;
     display: flex;
     gap: 12px;
     align-items: center;
-    margin-bottom: 12px;
-    font-size: 18px;
+    padding-left: 12px;
+/*    font-size: 18px;*/
   }
