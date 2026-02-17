@@ -6,6 +6,21 @@ const ROWS = 8;
 const COLS = 7;
 const TRAY_SIZE = 4 * CELL + 20;
 
+const MONTH_CELLS = {
+  Jan: [0,0],
+  Feb: [1,0],
+  Mar: [2,0],
+  Apr: [3,0],
+  May: [4,0],
+  Jun: [5,0],
+  Jul: [0,1],
+  Aug: [1,1],
+  Sep: [2,1],
+  Oct: [3,1],
+  Nov: [4,1],
+  Dec: [5,1]
+}
+
 const TARGET = {
   month: "FEB",
   date: "14",
@@ -79,19 +94,20 @@ function apply(p){
 // =======================
 // RENDER BOARD
 // =======================
-board.style.gridTemplateColumns=`repeat(${COLS},${CELL}px)`;
-board.innerHTML="";
-boardLayout.flat().forEach(c=>{
-  const d=document.createElement("div");
-  d.className="cell";
-  if(c===null) d.classList.add("locked");
-  else d.textContent=c;
-  if (c === TARGET.month || c === TARGET.date || c === TARGET.day) {
-    d.classList.add("target");
-  }
-  board.appendChild(d);
-});
-
+function renderBoard() {
+  board.style.gridTemplateColumns=`repeat(${COLS},${CELL}px)`;
+  board.innerHTML="";
+  boardLayout.flat().forEach(c=>{
+    const d=document.createElement("div");
+    d.className="cell";
+    if(c===null) d.classList.add("locked");
+    else d.textContent=c;
+    if (c === TARGET.month || c === TARGET.date || c === TARGET.day) {
+      d.classList.add("target");
+    }
+    board.appendChild(d);
+  });
+}
 // =======================
 // TRAY
 // =======================
@@ -324,7 +340,20 @@ function removeFromBoard(p) {
   });
   p.pos = null;
 }
+
+const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+function setTargetDate(d)
+{
+  TARGET.day = days[d.getDay()];
+  TARGET.date = d.getDate().toString();
+  TARGET.month = months[d.getMonth()];
+}
 function resetGame() {
+  var c_input=document.getElementById("calendar-input")
+  c_input.value = getCurrentDateStr()
+  setTargetDate(new Date());
+  renderBoard();
   // clear board coverage
   boardState.flat().forEach(c => {
     if (c) c.covered = false;
@@ -346,5 +375,16 @@ document.getElementById("resetBtn").onclick = resetGame;
 // =======================
 // INIT
 // =======================
+var c_input=document.getElementById("calendar-input");
+c_input.hidden = true;
+c_input.placeholder = getCurrentDateStr();
+var calendar = c_input.parentElement;
+calendar.addEventListener('click', (e) => {
+    if(e.target.classList.contains("cal-img"))
+        constructPicker(e, "01-01-1901", "N/A", "")
+});
+
+setTargetDate(new Date());
+renderBoard();
 pieces.forEach((p,i)=>renderPiece(p,i));
 //startTimer();
