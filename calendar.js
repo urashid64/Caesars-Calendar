@@ -48,7 +48,7 @@ var constructPicker = (e, minDateStr, maxDateStr, blockedDays) => {
    positionStyle.innerHTML = ` .calendarTable {
       margin-top: ${e.target.parentElement.offsetHeight}px;
       margin-left: -12px;
-      z-index: 1;    
+      z-index: 2;    
    }`;
 
    calendarGrid.appendChild(positionStyle)
@@ -68,8 +68,13 @@ var constructPicker = (e, minDateStr, maxDateStr, blockedDays) => {
          var parentInput = document.getElementById(calendarGrid.id.split('grid-')[1]);
          parentInput.value = `${("0" + ((Number(monthName.indexOf(mmyy[0]))) + 1)).slice(-2)}-${("0" + target.innerText).slice(-2) }-${mmyy[1]}`;
          document.getElementById("resetBtn").focus();
+
          setTargetDate(new Date(mmyy[1],Number(monthName.indexOf(mmyy[0])),Number(target.innerText)));
          renderBoard();
+         clearBoard();
+         resetPieces();
+         clearGhost();
+         startTimer();
       }
       // check whether up or down is clicked then change grid values
       else if (target.id == 'up') {
