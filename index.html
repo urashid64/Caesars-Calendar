@@ -2,26 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Caesar’s Calendar – Prototype</title>
+  <title>Caesar’s Calendar – Puzzle</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="calendar.css" />
 </head>
 <body>
 
 <div id="hud">
+  <button id="resetBtn">Reset</button>
   <div class="calendar inactive"> 
       <input id="calendar-input" class="calendar-input " placeholder="mm/dd/yy" type="text" value="" readonly>
       <img id="cal-img" class="cal-img" src="./calendar.png">
   </div>
-  <button id="resetBtn">Reset</button>
-  <span id="timer">00:00</span>
+  <div>
+    <button id="timerBtn">||</button>
+    <span id="timer">00:00</span>
+  </div>
 </div>
 
 <div id="game">
   <div id="board"></div>
   <div id="tray"></div>
 </div>
-
 <script src="calendar.js"></script>
 <script src="app.js"></script>
 </body>
