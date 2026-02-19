@@ -6,21 +6,6 @@ const ROWS = 8;
 const COLS = 7;
 const TRAY_SIZE = 4 * CELL + 20;
 
-const MONTH_CELLS = {
-  Jan: [0,0],
-  Feb: [1,0],
-  Mar: [2,0],
-  Apr: [3,0],
-  May: [4,0],
-  Jun: [5,0],
-  Jul: [0,1],
-  Aug: [1,1],
-  Sep: [2,1],
-  Oct: [3,1],
-  Nov: [4,1],
-  Dec: [5,1]
-}
-
 const TARGET = {
   month: "FEB",
   date: "14",
@@ -92,10 +77,11 @@ function apply(p){
 }
 
 // =======================
-// RENDER BOARD
+// BOARD
 // =======================
 function renderBoard() {
   board.style.gridTemplateColumns=`repeat(${COLS},${CELL}px)`;
+  board.style.gridTemplateRows=`repeat(${ROWS},${CELL}px)`;
   board.innerHTML="";
   boardLayout.flat().forEach(c=>{
     const d=document.createElement("div");
@@ -111,41 +97,43 @@ function renderBoard() {
 // =======================
 // TRAY
 // =======================
-tray.style.display="grid";
-tray.style.gridTemplateColumns="repeat(4, auto)";
-tray.style.gap="12px";
-
 const slots=[];
-for(let i=0;i<10;i++){
-  const s=document.createElement("div");
-  s.className="tray-slot";
-  s.style.width=TRAY_SIZE+"px";
-  s.style.height=TRAY_SIZE+"px";
-  s.style.position="relative";
-  s.style.boxSizing="border-box";
+function renderTray(){
+  tray.style.display="grid";
+  tray.style.gridTemplateColumns="repeat(4, auto)";
+  tray.style.gap="12px";
 
-  // controls
-  const rotateBtn = document.createElement("button");
-  rotateBtn.textContent = "⟳";
-  rotateBtn.className = "tray-btn rotate-btn";
-  
-  const flipBtn = document.createElement("button");
-  flipBtn.textContent = "⇋";
-  flipBtn.className = "tray-btn flip-btn";
-  
-  // prevent drag start
-  rotateBtn.onpointerdown = e => e.stopPropagation();
-  flipBtn.onpointerdown   = e => e.stopPropagation();
+  for(let i=0;i<10;i++){
+    const s=document.createElement("div");
+    s.className="tray-slot";
+    s.style.width=TRAY_SIZE+"px";
+    s.style.height=TRAY_SIZE+"px";
+    s.style.position="relative";
+    s.style.boxSizing="border-box";
 
-  s.appendChild(rotateBtn);
-  s.appendChild(flipBtn);
+    // controls
+    const rotateBtn = document.createElement("button");
+    rotateBtn.textContent = "⟳";
+    rotateBtn.className = "tray-btn rotate-btn";
+    
+    const flipBtn = document.createElement("button");
+    flipBtn.textContent = "⇋";
+    flipBtn.className = "tray-btn flip-btn";
+    
+    // prevent drag start
+    rotateBtn.onpointerdown = e => e.stopPropagation();
+    flipBtn.onpointerdown   = e => e.stopPropagation();
 
-  slots.push(s);
-  tray.appendChild(s);
+    s.appendChild(rotateBtn);
+    s.appendChild(flipBtn);
+
+    slots.push(s);
+    tray.appendChild(s);
+  }
 }
 
 // =======================
-// RENDER PIECE
+// PIECES
 // =======================
 function renderPiece(p,slot){
   apply(p);
@@ -164,6 +152,10 @@ function renderPiece(p,slot){
   //  b.style.background="#c19a6b";
     b.style.background=p.bg;
     b.style.border="1px solid #8b6b4f";
+  //  b.style.border="1px solid #c19a6b";
+    b.style.textAlign="center";
+    b.style.alignContent="center";
+    b.textContent = p.id;
     el.appendChild(b);
   });
 
@@ -286,12 +278,18 @@ document.addEventListener("pointerup",e=>{
   active=null;
 });
 
+// =======================
+// TIMER LOGIC
+// =======================
 let startTime = Date.now();
 let timerInterval = null;
+let pausedTime = null;
 
 function startTimer() {
   clearInterval(timerInterval);
   startTime = Date.now();
+  document.getElementById("timerBtn").textContent = "||";
+  document.getElementById("timer").textContent = "00:00";
   timerInterval = setInterval(updateTimer, 1000);
 }
 
@@ -300,6 +298,22 @@ function updateTimer() {
   const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const s = String(elapsed % 60).padStart(2, "0");
   document.getElementById("timer").textContent = `${m}:${s}`;
+}
+
+function pauseTimer() {
+  var t = document.getElementById("timer").textContent.split(":");
+  pausedTime = (t[0]*60 + t[1])*1000; // Millisecs
+  clearInterval(timerInterval);
+  document.getElementById("timerBtn").onclick = resumeTimer;
+  document.getElementById("timerBtn").textContent = ">";
+}
+
+function resumeTimer() {
+  startTime = Math.floor(Date.now()-pausedTime);
+  pausedTime = null;
+  document.getElementById("timerBtn").onclick = pauseTimer;
+  document.getElementById("timerBtn").textContent = "||";
+  timerInterval = setInterval(updateTimer, 1000);
 }
 
 // =======================
@@ -349,17 +363,8 @@ function setTargetDate(d)
   TARGET.date = d.getDate().toString();
   TARGET.month = months[d.getMonth()];
 }
-function resetGame() {
-  var c_input=document.getElementById("calendar-input")
-  c_input.value = getCurrentDateStr()
-  setTargetDate(new Date());
-  renderBoard();
-  // clear board coverage
-  boardState.flat().forEach(c => {
-    if (c) c.covered = false;
-  });
-
-  // reset pieces
+// reset pieces
+function resetPieces() {
   pieces.forEach((p, i) => {
     p.rotation = 0;
     p.flipped = false;
@@ -367,24 +372,50 @@ function resetGame() {
     if (p.el) p.el.remove();
     renderPiece(p, i);
   });
-
-  clearGhost();
-//  startTimer();
 }
-document.getElementById("resetBtn").onclick = resetGame;
+
+// clear board coverage
+function clearBoard() {
+  boardState.flat().forEach(c => {
+    if (c) c.covered = false;
+  });
+}
+
+// Reset Game
+function resetGame() {
+  var c_input=document.getElementById("calendar-input")
+  c_input.value = getCurrentDateStr()
+  setTargetDate(new Date());
+  renderBoard();
+  clearBoard();
+  // clear board coverage
+//  boardState.flat().forEach(c => {
+//    if (c) c.covered = false;
+//  });
+
+  resetPieces();
+  clearGhost();
+  startTimer();
+}
+
 // =======================
 // INIT
 // =======================
+document.getElementById("resetBtn").onclick = resetGame;
+document.getElementById("timerBtn").onclick = pauseTimer;
+
 var c_input=document.getElementById("calendar-input");
-c_input.hidden = true;
+//c_input.hidden = true;
 c_input.placeholder = getCurrentDateStr();
 var calendar = c_input.parentElement;
 calendar.addEventListener('click', (e) => {
-    if(e.target.classList.contains("cal-img"))
+//    if(e.target.classList.contains("cal-img"))
         constructPicker(e, "01-01-1901", "N/A", "")
 });
 
 setTargetDate(new Date());
 renderBoard();
-pieces.forEach((p,i)=>renderPiece(p,i));
-//startTimer();
+renderTray();
+resetPieces();
+//pieces.forEach((p,i)=>renderPiece(p,i));
+startTimer();
