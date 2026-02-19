@@ -11,13 +11,24 @@ body {
   
   #board {
     display: grid;
-/*    grid-template-columns: repeat(7, 60px);*/
-    grid-template-rows: repeat(7, 60px);
+    height: fit-content;
+/*    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(8, 60px); */
     gap: 2px;
     background: #9b7b5f;
     padding: 6px;
   }
   
+  #pieces {
+    display: grid;
+    width: fit-content;
+    gap: 2px;
+    grid-template-columns: repeat(5, 90px);
+    grid-template-rows: repeat(2, 80px);
+    background: #9b7b5f;
+    padding: 6px;
+  }
+
   .cell {
     width: 60px;
     height: 60px;
@@ -102,10 +113,16 @@ body {
   }
 
   #hud {
-    width:240px;
+    width:444px;
     display: flex;
+    justify-content: space-between;
     gap: 12px;
     align-items: center;
     padding-left: 12px;
-/*    font-size: 18px;*/
+    font-size: 16px;
   }
+
+  
+.right {
+    margin-left: auto; /* Push this and following items to the right */
+}
