@@ -5,6 +5,7 @@
   <title>Caesar’s Calendar – Puzzle</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="calendar.css" />
+  <link rel="stylesheet" href="svg.css" />
 </head>
 <body>
 
@@ -22,9 +23,38 @@
 
 <div id="game">
   <div id="board"></div>
+  <div class="canvas" id="canvas">
+    <svg class="overlay" id="overlay" viewBox="0 0 444 506">
+      <line id="line1_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line2_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line2_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line3_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line3_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line4_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line4_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line5_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line5_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line6_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line6_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line6_3" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line7_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line7_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line7_3" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line8_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line8_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line8_3" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line9_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line9_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line9_3" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line10_1" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line10_2" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line10_3" class="conn-line" x1="0" y1="0" x2="0" y2="0" />
+    </svg>
+  </div>
   <div id="tray"></div>
 </div>
 <script src="calendar.js"></script>
+<script src="svg.js"></script> 
 <script src="app.js"></script>
 </body>
 </html>
