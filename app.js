@@ -155,7 +155,7 @@ function renderPiece(p,slot){
   //  b.style.border="1px solid #c19a6b";
     b.style.textAlign="center";
     b.style.alignContent="center";
-    b.textContent = p.id;
+//    b.textContent = p.id;
     el.appendChild(b);
   });
 
@@ -326,8 +326,8 @@ function boardOrigin() {
     y: rect.top+6
   };
 }
-function canPlace(p,x,y){
-  for(const c of p.cells){
+function canPlace(p,x,y) {
+  for(const c of p.cells) {
     const X=x+c[0], Y=y+c[1];
     if(X<0||Y<0||X>=COLS||Y>=ROWS) return false;
     if(boardState[Y][X]===null||boardState[Y][X].covered) return false;
@@ -345,24 +345,29 @@ function place(p, x, y) {
   p.el.style.left = origin.x + x * (CELL+2) + "px";
   p.el.style.top  = origin.y + y * (CELL+2) + "px";
 
+  showLines(p);
   updateTrayButtons(p);
 }
+
 function removeFromBoard(p) {
   if (!p.pos) return;
   p.cells.forEach(c => {
     boardState[p.pos.y + c[1]][p.pos.x + c[0]].covered = false;
   });
   p.pos = null;
+  clearLines(p);
 }
 
-const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 function setTargetDate(d)
 {
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  
   TARGET.day = days[d.getDay()];
   TARGET.date = d.getDate().toString();
   TARGET.month = months[d.getMonth()];
 }
+
 // reset pieces
 function resetPieces() {
   pieces.forEach((p, i) => {
@@ -371,6 +376,7 @@ function resetPieces() {
     p.pos = null;
     if (p.el) p.el.remove();
     renderPiece(p, i);
+    clearLines(p);
   });
 }
 
@@ -383,15 +389,11 @@ function clearBoard() {
 
 // Reset Game
 function resetGame() {
-  var c_input=document.getElementById("calendar-input")
-  c_input.value = getCurrentDateStr()
+  var c_input=document.getElementById("calendar-input");
+  c_input.value = getCurrentDateStr();
   setTargetDate(new Date());
   renderBoard();
   clearBoard();
-  // clear board coverage
-//  boardState.flat().forEach(c => {
-//    if (c) c.covered = false;
-//  });
 
   resetPieces();
   clearGhost();
@@ -405,11 +407,11 @@ document.getElementById("resetBtn").onclick = resetGame;
 document.getElementById("timerBtn").onclick = pauseTimer;
 
 var c_input=document.getElementById("calendar-input");
-//c_input.hidden = true;
+c_input.hidden = true;
 c_input.placeholder = getCurrentDateStr();
 var calendar = c_input.parentElement;
 calendar.addEventListener('click', (e) => {
-//    if(e.target.classList.contains("cal-img"))
+    if(e.target.classList.contains("cal-img"))
         constructPicker(e, "01-01-1901", "N/A", "")
 });
 
@@ -417,5 +419,4 @@ setTargetDate(new Date());
 renderBoard();
 renderTray();
 resetPieces();
-//pieces.forEach((p,i)=>renderPiece(p,i));
 startTimer();
