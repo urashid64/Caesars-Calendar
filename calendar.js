@@ -41,24 +41,24 @@ var constructPicker = (e, minDateStr, maxDateStr, blockedDays) => {
       endDate = new Date(maxDateStr)   
    } 
 
-   calendarGrid.innerHTML = constructGrid(maxDateStr, minDateStr, focusDate, blockedDays)
+   calendarGrid.innerHTML = constructGrid(maxDateStr, minDateStr, focusDate, blockedDays);
    // display the grid where attatched to the parent
    var positionStyle = document.createElement('style');
    positionStyle.type = 'text/css';
    positionStyle.innerHTML = ` .calendarTable {
       margin-top: ${e.target.parentElement.offsetHeight}px;
       margin-left: -12px;
-      z-index: 2;    
+      z-index: 3;
    }`;
 
-   calendarGrid.appendChild(positionStyle)
-   e.target.parentElement.appendChild(calendarGrid)
-   e.target.parentElement.classList.remove('inactive')
-   e.target.parentElement.children[2].focus()
+   calendarGrid.appendChild(positionStyle);
+   e.target.parentElement.appendChild(calendarGrid);
+   e.target.parentElement.classList.remove('inactive');
+   e.target.parentElement.children[2].focus();
    // add event listener after appending
    document.getElementById(calendarGrid.id).addEventListener("focusout", (ev)=>{
-      deconstructPicker(ev)
-   })
+      deconstructPicker(ev);
+   });
 
    document.getElementById(calendarGrid.id).addEventListener('click', (ev) => {
       var mmyy = calendarGrid.caption.innerText.split(' ')
