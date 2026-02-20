@@ -1,0 +1,20 @@
+.canvas {
+    position: absolute;
+    width: 444px;
+    height: 506px;
+    border: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none; /* let mouse interactions pass to boxes */
+    z-index: 2;
+}
+
+.conn-line {
+    stroke: #d6c2a3;
+/*    stroke: #8b6b4f;*/
+    stroke-width: 4;
+}
