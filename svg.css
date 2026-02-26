@@ -1,7 +1,7 @@
 .canvas {
     position: absolute;
-    width: 444px;
-    height: 506px;
+    width: 374px;
+    height: 426px;
     border: 1px solid #ddd;
     background: rgba(255, 255, 255, 0.1);
 }
@@ -15,6 +15,14 @@
 
 .conn-line {
     stroke: #d6c2a3;
-/*    stroke: #8b6b4f;*/
     stroke-width: 4;
+}
+
+.label {
+    font-weight:lighter;
+    font-size: 22px;
+    font-style: italic;
+    fill: #e6d3b1;
+    user-select: none;
+    z-index: 4;
 }
