@@ -70,11 +70,7 @@ var constructPicker = (e, minDateStr, maxDateStr, blockedDays) => {
          document.getElementById("resetBtn").focus();
 
          setTargetDate(new Date(mmyy[1],Number(monthName.indexOf(mmyy[0])),Number(target.innerText)));
-         renderBoard();
-         clearBoard();
-         resetPieces();
-         clearGhost();
-         startTimer();
+         resetBoard();
       }
       // check whether up or down is clicked then change grid values
       else if (target.id == 'up') {
