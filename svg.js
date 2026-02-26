@@ -24,13 +24,17 @@ const line9_3 = document.getElementById('line9_3');
 const line10_1 = document.getElementById('line10_1');
 const line10_2 = document.getElementById('line10_2');
 const line10_3 = document.getElementById('line10_3');
+const title = document.getElementById('title');
 
 const containerRect = canvas.getBoundingClientRect();
 overlay.setAttribute('viewBox', `0 0 ${containerRect.width} ${containerRect.height}`);
 
+title.setAttribute('x', containerRect.x - 4);
+title.setAttribute('y', containerRect.y + 354);
+
 
 function drawLine (p, line, c1, c2) {
-    const pOrig = {x:p.el.offsetLeft-containerRect.x, y:p.el.offsetTop-containerRect.y};
+    const pOrig = {x:p.el.offsetLeft-containerRect.x, y:p.el.offsetTop-containerRect.y+1};
 
     A = {x:pOrig.x+p.el.childNodes[c1].offsetLeft+CELL/2, y:pOrig.y+p.el.childNodes[c1].offsetTop+CELL/2};
     B = {x:pOrig.x+p.el.childNodes[c2].offsetLeft+CELL/2, y:pOrig.y+p.el.childNodes[c2].offsetTop+CELL/2};
@@ -76,15 +80,15 @@ function showLines(p) {
             break;
 
         case "6":
-            drawLine(p, line6_1, 0, 1);
-            drawLine(p, line6_2, 0, 4);
-            drawLine(p, line6_3, 1, 3);
+            drawLine(p, line6_1, 0, 2);
+            drawLine(p, line6_2, 0, 3);
+            drawLine(p, line6_3, 3, 4);
             break;
 
         case "7":
-            drawLine(p, line7_1, 0, 1);
-            drawLine(p, line7_2, 0, 3);
-            drawLine(p, line7_3, 3, 4);
+            drawLine(p, line7_1, 0, 2);
+            drawLine(p, line7_2, 2, 4);
+            drawLine(p, line7_3, 4, 1);
             break;
 
         case "8":
