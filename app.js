@@ -1,7 +1,7 @@
 // =======================
 // CONSTANTS
 // =======================
-const CELL = 60;
+const CELL = 50;
 const ROWS = 8;
 const COLS = 7;
 const TRAY_SIZE = 4 * CELL + 20;
@@ -39,8 +39,8 @@ const pieces = [
   {id:"3", bg:"#c19a6b", base:[[0,0],[1,0],[2,0],[3,0],[0,1]]},
   {id:"4", bg:"#c19a6b", base:[[0,0],[1,0],[2,0],[0,1],[0,2]]},
   {id:"5", bg:"#c19a6b", base:[[0,0],[1,0],[2,0],[1,1],[1,2]]},
-  {id:"6", bg:"#c19a6b", base:[[0,0],[1,0],[0,1],[1,1],[0,2]]},
-  {id:"7", bg:"#c19a6b", base:[[0,0],[1,0],[0,1],[0,2],[1,2]]},
+  {id:"6", bg:"#c19a6b", base:[[0,0],[1,0],[2,0],[0,1],[1,1]]},
+  {id:"7", bg:"#c19a6b", base:[[0,0],[2,0],[0,1],[1,1],[2,1]]},
   {id:"8", bg:"#c19a6b", base:[[0,0],[1,0],[1,1],[2,1]]},
   {id:"9", bg:"#c19a6b", base:[[0,0],[1,0],[1,1],[1,2],[2,2]]},
   {id:"10",bg:"#c19a6b", base:[[0,0],[1,0],[1,1],[2,1],[3,1]]}
@@ -86,6 +86,8 @@ function renderBoard() {
   boardLayout.flat().forEach(c=>{
     const d=document.createElement("div");
     d.className="cell";
+    d.style.width=CELL+"px";
+    d.style.height=CELL+"px";
     if(c===null) d.classList.add("locked");
     else d.textContent=c;
     if (c === TARGET.month || c === TARGET.date || c === TARGET.day) {
@@ -277,7 +279,7 @@ document.addEventListener("pointerup",e=>{
 
   active=null;
 });
-
+/*
 // =======================
 // TIMER LOGIC
 // =======================
@@ -315,7 +317,7 @@ function resumeTimer() {
   document.getElementById("timerBtn").textContent = "||";
   timerInterval = setInterval(updateTimer, 1000);
 }
-
+*/
 // =======================
 // BOARD LOGIC
 // =======================
@@ -366,6 +368,9 @@ function setTargetDate(d)
   TARGET.day = days[d.getDay()];
   TARGET.date = d.getDate().toString();
   TARGET.month = months[d.getMonth()];
+
+  var c_input=document.getElementById("calendar-input");
+  c_input.value = getCurrentDateStr();
 }
 
 // reset pieces
@@ -387,24 +392,26 @@ function clearBoard() {
   });
 }
 
-// Reset Game
-function resetGame() {
-  var c_input=document.getElementById("calendar-input");
-  c_input.value = getCurrentDateStr();
-  setTargetDate(new Date());
+// Reset Board, keep target date
+function resetBoard() {
   renderBoard();
   clearBoard();
-
   resetPieces();
   clearGhost();
-  startTimer();
+//  startTimer();
+}
+
+// Reset Game
+function resetGame() {
+  setTargetDate(new Date());
+  resetBoard();
 }
 
 // =======================
 // INIT
 // =======================
 document.getElementById("resetBtn").onclick = resetGame;
-document.getElementById("timerBtn").onclick = pauseTimer;
+document.getElementById("clearBtn").onclick = resetBoard;
 
 var c_input=document.getElementById("calendar-input");
 c_input.hidden = true;
@@ -415,8 +422,9 @@ calendar.addEventListener('click', (e) => {
         constructPicker(e, "01-01-1901", "N/A", "")
 });
 
-setTargetDate(new Date());
-renderBoard();
 renderTray();
-resetPieces();
-startTimer();
+resetGame();
+//setTargetDate(new Date());
+//renderBoard();
+//resetPieces();
+//startTimer();
